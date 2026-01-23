@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queer Eye AI Makeover - Discover Your AI Potential</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .fab-five-intro {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .host-card {
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .host-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .host-card.tan { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .host-card.antoni { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .host-card.karamo { background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); color: white; }
+        .host-card.bobby { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+        .host-card.jonathan { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+
+        .host-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .host-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .question-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid;
+        }
+
+        .question-card.tan { border-color: #fcb69f; }
+        .question-card.antoni { border-color: #a1c4fd; }
+        .question-card.karamo { border-color: #19547b; }
+        .question-card.bobby { border-color: #8ec5fc; }
+        .question-card.jonathan { border-color: #f5576c; }
+
+        .host-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .host-emoji {
+            font-size: 1.5em;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+            font-weight: bold;
+        }
+
+        .option-letter {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-letter {
+            background: #764ba2;
+        }
+
+        .reaction {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff9e6;
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+            display: none;
+            animation: slideIn 0.4s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .reaction.show {
+            display: block;
+        }
+
+        .reaction-text {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .reaction-author {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .open-question {
+            margin-top: 20px;
+        }
+
+        .open-question textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .open-question textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .progress {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .value-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .value-card h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tool-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .tool-highlight h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .challenge-card {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .affirmation {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-top: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Your AI Makeover ✨</h1>
+            <p>with the Fab Five</p>
+        </div>
+
+        <div class="content">
+            <!-- Intro Section -->
+            <div id="intro" class="intro-section">
+                <h2 style="margin-bottom: 20px;">Honey, we're here to help you SHINE with AI!</h2>
+                <p style="font-size: 1.1em; line-height: 1.6; margin-bottom: 30px;">
+                    Just like we transform lives on Queer Eye, we're about to give you an AI makeover that amplifies your human potential.
+                    We'll help you discover how AI can reshape your work and life in ways that align with YOUR values and YOUR purpose.
+                </p>
+
+                <div class="fab-five-intro">
+                    <div class="host-card tan">
+                        <div class="host-emoji">👔</div>
+                        <h3>Tan</h3>
+                        <p>Professional Polish</p>
+                    </div>
+                    <div class="host-card antoni">
+                        <div class="host-emoji">🍳</div>
+                        <h3>Antoni</h3>
+                        <p>Nourishment & Creativity</p>
+                    </div>
+                    <div class="host-card karamo">
+                        <div class="host-emoji">💭</div>
+                        <h3>Karamo</h3>
+                        <p>Mindset & Heart</p>
+                    </div>
+                    <div class="host-card bobby">
+                        <div class="host-emoji">🏠</div>
+                        <h3>Bobby</h3>
+                        <p>Systems & Flow</p>
+                    </div>
+                    <div class="host-card jonathan">
+                        <div class="host-emoji">💫</div>
+                        <h3>Jonathan</h3>
+                        <p>Daily Care & Joy</p>
+                    </div>
+                </div>
+
+                <p style="font-size: 1.1em; margin: 30px 0;">
+                    We're going to ask you some questions to understand what makes YOU unique.
+                    Choose the answer that resonates MOST, even if a few feel true.
+                </p>
+
+                <button class="btn" onclick="startAssessment()">Let's Get Started!</button>
+            </div>
+
+            <!-- Assessment Section -->
+            <div id="assessment" class="question-section">
+                <div class="progress">
+                    <div style="font-size: 1.1em; font-weight: bold;">Question <span id="current-q">1</span> of 10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div id="question-container"></div>
+
+                <div class="navigation">
+                    <button class="btn" id="prev-btn" onclick="previousQuestion()" style="display: none;">← Previous</button>
+                    <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+                </div>
+            </div>
+
+            <!-- Open Questions Section -->
+            <div id="open-questions" class="question-section">
+                <h2 style="margin-bottom: 30px; text-align: center;">Now, let's go deeper...</h2>
+                <p style="text-align: center; margin-bottom: 40px; font-size: 1.1em;">
+                    Each of us has one more question to help personalize your AI makeover.
+                </p>
+                <div id="open-questions-container"></div>
+                <div class="navigation">
+                    <button class="btn" onclick="generateResults()">Show Me My AI Makeover! ✨</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="results-section">
+                <!-- Results will be generated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data
+        const questions = [
+            {
+                host: 'tan',
+                hostName: 'Tan France',
+                emoji: '👔',
+                question: "Let's talk about how you present yourself at work. What's your biggest struggle when it comes to professional communication?",
+                options: [
+                    { id: 'a', text: "Writing takes forever - I overthink every email", value: 'perfectionist' },
+                    { id: 'b', text: "I have great ideas but struggle to articulate them clearly", value: 'clarity' },
+                    { id: 'c', text: "I'm confident in person but my writing doesn't capture my personality", value: 'personality' },
+                    { id: 'd', text: "I don't struggle - I'm already fabulous, darling", value: 'confident' }
+                ],
+                reactions: {
+                    'a': { text: "Oh honey, I see this all the time! You care about quality, which is beautiful. But AI can help you polish faster so you can focus on what really matters.", author: "Tan" },
+                    'b': { text: "You know what? That's actually a strength. Your brain works fast! We just need to help you translate those brilliant thoughts into words.", author: "Tan" },
+                    'c': { text: "I LOVE this self-awareness! Your personality is your superpower. Let's make sure your writing matches that energy.", author: "Tan" },
+                    'd': { text: "Look at you! That confidence is stunning. But even the most fabulous people can level up, darling.", author: "Tan" }
+                },
+                openQuestion: "What does 'professional excellence' mean to you personally?"
+            },
+            {
+                host: 'tan',
+                hostName: 'Tan France',
+                emoji: '👔',
+                question: "When you imagine your most polished professional self, what are you doing differently?",
+                options: [
+                    { id: 'a', text: "Communicating with clarity and confidence", value: 'communication' },
+                    { id: 'b', text: "Producing higher quality work faster", value: 'efficiency' },
+                    { id: 'c', text: "Being more creative and original", value: 'creativity' },
+                    { id: 'd', text: "Having more time for what really matters", value: 'time' }
+                ],
+                reactions: {
+                    'a': { text: "YES! That's what it's all about. Confidence comes from clarity, and we're going to get you there.", author: "Tan" },
+                    'b': { text: "Speed AND quality? That's not a compromise, that's AI's sweet spot, love.", author: "Tan" },
+                    'c': { text: "Gorgeous! Creativity is what makes you irreplaceable. AI should amplify that, not replace it.", author: "Tan" },
+                    'd': { text: "THIS is the real transformation. When we free up your time, you can focus on your purpose.", author: "Tan" }
+                }
+            },
+            {
+                host: 'antoni',
+                hostName: 'Antoni Porowski',
+                emoji: '🍳',
+                question: "What feeds your soul at work - what kind of tasks make you feel most alive?",
+                options: [
+                    { id: 'a', text: "Learning new things and going deep", value: 'learning' },
+                    { id: 'b', text: "Creating something original", value: 'creating' },
+                    { id: 'c', text: "Solving complex problems", value: 'solving' },
+                    { id: 'd', text: "Connecting ideas in new ways", value: 'connecting' }
+                ],
+                reactions: {
+                    'a': { text: "That's beautiful. Real nourishment comes from growth. AI can be your learning partner, helping you absorb and understand faster.", author: "Antoni", banter: "Jonathan: 'OMG yes, learning is so sexy!'" },
+                    'b': { text: "Creating is deeply human. The best AI use is when it handles the prep work so you have more energy for pure creation.", author: "Antoni" },
+                    'c': { text: "I love this. Problem-solving is like cooking - you need the right ingredients and techniques. AI can be your sous chef.", author: "Antoni" },
+                    'd': { text: "That's synthesis, and it's so valuable. AI can help you see patterns you might miss when you're overwhelmed.", author: "Antoni" }
+                },
+                openQuestion: "What kind of work makes you feel most nourished and fulfilled?"
+            },
+            {
+                host: 'antoni',
+                hostName: 'Antoni Porowski',
+                emoji: '🍳',
+                question: "When you're overwhelmed with information or tasks, what do you need most?",
+                options: [
+                    { id: 'a', text: "Someone to help me see the big picture", value: 'bigpicture' },
+                    { id: 'b', text: "A way to organize and make sense of it all", value: 'organize' },
+                    { id: 'c', text: "More time to think deeply", value: 'think' },
+                    { id: 'd', text: "Fresh perspective and new ideas", value: 'perspective' }
+                ],
+                reactions: {
+                    'a': { text: "Sometimes we get lost in the details. AI is incredible at summarizing and helping you see the forest through the trees.", author: "Antoni" },
+                    'b': { text: "Organization is the foundation of everything. When your information is organized, you can actually use it.", author: "Antoni", banter: "Bobby: 'PREACH!'" },
+                    'c': { text: "Deep thinking is where the magic happens. If AI can handle the surface-level stuff, you get that time back.", author: "Antoni" },
+                    'd': { text: "Fresh perspective is everything. AI can be like a creative partner, bouncing ideas back in ways you wouldn't expect.", author: "Antoni" }
+                }
+            },
+            {
+                host: 'karamo',
+                hostName: 'Karamo Brown',
+                emoji: '💭',
+                question: "Be real with me - what's your honest relationship with AI right now?",
+                options: [
+                    { id: 'a', text: "Scared it'll replace me or what makes me human", value: 'fear' },
+                    { id: 'b', text: "Intrigued but don't know where to start", value: 'curious' },
+                    { id: 'c', text: "Using it but feel guilty or like I'm 'cheating'", value: 'guilt' },
+                    { id: 'd', text: "Excited but worried I'm not using it right", value: 'excited' }
+                ],
+                reactions: {
+                    'a': { text: "Thank you for being vulnerable. Here's the truth: AI can't replace what makes you YOU. Your empathy, values, experiences - that's irreplaceable. AI is a tool that amplifies your humanity.", author: "Karamo" },
+                    'b': { text: "That curiosity? That's courage. Not knowing where to start is exactly where everyone starts. We're going to change that today.", author: "Karamo" },
+                    'c': { text: "Listen to me: Using tools doesn't diminish your work. Do you feel guilty using a calculator? A spellchecker? AI is the same. What matters is the thinking and judgment YOU bring.", author: "Karamo", banter: "Tan: 'Exactly! Nobody makes their own fabric!'" },
+                    'd': { text: "That excitement is your intuition telling you something. There's no 'right way' - there's YOUR way. Let's find it.", author: "Karamo" }
+                },
+                openQuestion: "What impact do you most want to have in your work and life?"
+            },
+            {
+                host: 'karamo',
+                hostName: 'Karamo Brown',
+                emoji: '💭',
+                question: "What impact do you most want to have in your work and life?",
+                options: [
+                    { id: 'a', text: "Help and empower others", value: 'empower' },
+                    { id: 'b', text: "Create meaningful change", value: 'change' },
+                    { id: 'c', text: "Express my authentic self", value: 'authentic' },
+                    { id: 'd', text: "Master my craft and excel", value: 'mastery' }
+                ],
+                reactions: {
+                    'a': { text: "This is your PURPOSE. And here's what's powerful: when AI handles the logistics, you have MORE energy for the human connection that truly empowers people.", author: "Karamo" },
+                    'b': { text: "Change-makers need leverage. AI isn't the change - YOU are. But AI can amplify your reach and your impact.", author: "Karamo" },
+                    'c': { text: "Your authenticity is your power. AI should never mask who you are - it should give you space to be MORE yourself.", author: "Karamo" },
+                    'd': { text: "Excellence requires focus. When you're not drowning in busywork, you can dedicate yourself to true mastery.", author: "Karamo" }
+                }
+            },
+            {
+                host: 'bobby',
+                hostName: 'Bobby Berk',
+                emoji: '🏠',
+                question: "Let's talk about your workspace and workflow. What's the biggest mess we need to clean up?",
+                options: [
+                    { id: 'a', text: "My processes are chaotic - I waste so much time", value: 'chaos' },
+                    { id: 'b', text: "I'm drowning in information/research/data", value: 'information' },
+                    { id: 'c', text: "I do too many repetitive tasks manually", value: 'repetitive' },
+                    { id: 'd', text: "My digital life is disorganized", value: 'disorganized' }
+                ],
+                reactions: {
+                    'a': { text: "Okay, we're doing a full renovation. The good news? AI is amazing at creating structure from chaos. We just need to identify your repeated workflows.", author: "Bobby" },
+                    'b': { text: "Information overload is like clutter - it paralyzes you. AI can be your organization system, helping you find what you need when you need it.", author: "Bobby" },
+                    'c': { text: "STOP. If you're doing the same thing over and over, that's literally what computers are for. Let's automate that.", author: "Bobby", banter: "Antoni: 'It's like having someone else chop the onions!'" },
+                    'd': { text: "Digital organization is just as important as physical. When everything has a place and a system, you can actually work.", author: "Bobby" }
+                },
+                openQuestion: "If we could redesign your workday, what would you want more space for?"
+            },
+            {
+                host: 'bobby',
+                hostName: 'Bobby Berk',
+                emoji: '🏠',
+                question: "If we could redesign your workday, what would you want more space for?",
+                options: [
+                    { id: 'a', text: "Deep, focused creative work", value: 'creative' },
+                    { id: 'b', text: "Strategic thinking and planning", value: 'strategic' },
+                    { id: 'c', text: "Human connection and collaboration", value: 'connection' },
+                    { id: 'd', text: "Learning and experimentation", value: 'experiment' }
+                ],
+                reactions: {
+                    'a': { text: "Creative work requires protected time and mental space. Every minute AI saves you on admin is a minute you can spend creating.", author: "Bobby" },
+                    'b': { text: "Strategy is what separates good from great. If AI handles tactics and execution, you can focus on the vision.", author: "Bobby" },
+                    'c': { text: "YES! The most valuable thing we have is human connection. Technology should create MORE space for that, not less.", author: "Bobby" },
+                    'd': { text: "Experimentation is how we grow. When your systems are tight, you have bandwidth to try new things.", author: "Bobby" }
+                }
+            },
+            {
+                host: 'jonathan',
+                hostName: 'Jonathan Van Ness',
+                emoji: '💫',
+                question: "Gorgeous! Tell me about your daily routine - when do you feel most energized?",
+                options: [
+                    { id: 'a', text: "Morning - I love fresh starts", value: 'morning' },
+                    { id: 'b', text: "When I'm in flow on something I care about", value: 'flow' },
+                    { id: 'c', text: "After I've accomplished something", value: 'accomplishment' },
+                    { id: 'd', text: "When I'm learning or discovering something new", value: 'discovery' }
+                ],
+                reactions: {
+                    'a': { text: "Okay, morning person! Let's use AI to set you up for success each morning. Imagine starting each day with a personalized brief of what matters.", author: "Jonathan", banter: "Bobby: 'Morning routines are EVERYTHING.'" },
+                    'b': { text: "Flow state is like the BEST hair day! AI can protect your flow by handling interruptions and busy work.", author: "Jonathan" },
+                    'c': { text: "That accomplishment dopamine is REAL, honey! AI can help you knock things out faster so you get more of those wins.", author: "Jonathan" },
+                    'd': { text: "Learning and discovery! That's gorgeous! AI is like having a brilliant friend who always has interesting things to share.", author: "Jonathan" }
+                },
+                openQuestion: "What would make AI feel less like 'work' and more like a fun, supportive friend?"
+            },
+            {
+                host: 'jonathan',
+                hostName: 'Jonathan Van Ness',
+                emoji: '💫',
+                question: "What would make AI feel less like 'work' and more like a fun, supportive friend?",
+                options: [
+                    { id: 'a', text: "If it helped me learn and grow", value: 'growth' },
+                    { id: 'b', text: "If it handled the boring stuff so I could do what I love", value: 'boring' },
+                    { id: 'c', text: "If it sparked my creativity", value: 'spark' },
+                    { id: 'd', text: "If it helped me be more present and less stressed", value: 'present' }
+                ],
+                reactions: {
+                    'a': { text: "Yes! AI as your personal tutor and curiosity partner. It can explain things, help you understand, and make learning feel playful!", author: "Jonathan" },
+                    'b': { text: "The boring stuff is like doing dishes - necessary but ugh. Let AI be your dishwasher so you can cook!", author: "Jonathan" },
+                    'c': { text: "AI for creativity is like having a brainstorming buddy who never runs out of ideas. You're still the artist, honey!", author: "Jonathan" },
+                    'd': { text: "THIS! When you're not overwhelmed, you can actually be present. AI can be your stress-management tool.", author: "Jonathan" }
+                }
+            }
+        ];
+
+        const openQuestions = [
+            { host: 'tan', emoji: '👔', question: "What does 'professional excellence' mean to you personally?" },
+            { host: 'antoni', emoji: '🍳', question: "What kind of work makes you feel most nourished and fulfilled?" },
+            { host: 'karamo', emoji: '💭', question: "What impact do you most want to have in your work and life?" },
+            { host: 'bobby', emoji: '🏠', question: "If we could redesign your workday, what would you want more space for?" },
+            { host: 'jonathan', emoji: '💫', question: "What would make AI feel less like 'work' and more like a fun, supportive friend?" }
+        ];
+
+        // State
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let openAnswers = {};
+
+        function startAssessment() {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('assessment').style.display = 'block';
+            showQuestion(0);
+        }
+
+        function showQuestion(index) {
+            currentQuestionIndex = index;
+            const question = questions[index];
+            const container = document.getElementById('question-container');
+
+            let optionsHTML = '';
+            question.options.forEach(option => {
+                const selected = answers[index] === option.id ? 'selected' : '';
+                optionsHTML += `
+                    <div class="option ${selected}" onclick="selectOption(${index}, '${option.id}', '${option.value}')">
+                        <div class="option-letter">${option.id.toUpperCase()}</div>
+                        <div>${option.text}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="question-card ${question.host}">
+                    <div class="host-name">
+                        <span class="host-emoji">${question.emoji}</span>
+                        ${question.hostName}
+                    </div>
+                    <div class="question-text">"${question.question}"</div>
+                    <div class="options">
+                        ${optionsHTML}
+                    </div>
+                    <div class="reaction" id="reaction-${index}">
+                        <div class="reaction-text" id="reaction-text-${index}"></div>
+                        <div class="reaction-author" id="reaction-author-${index}"></div>
+                    </div>
+                </div>
+            `;
+
+            // Update progress
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('current-q').textContent = index + 1;
+
+            // Update navigation
+            document.getElementById('prev-btn').style.display = index > 0 ? 'block' : 'none';
+            document.getElementById('next-btn').disabled = !answers[index];
+
+            // Show reaction if already answered
+            if (answers[index]) {
+                showReaction(index, answers[index]);
+            }
+        }
+
+        function selectOption(questionIndex, optionId, value) {
+            answers[questionIndex] = optionId;
+
+            // Update UI
+            const options = document.querySelectorAll(`#question-container .option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            // Enable next button
+            document.getElementById('next-btn').disabled = false;
+
+            // Show reaction
+            showReaction(questionIndex, optionId);
+        }
+
+        function showReaction(questionIndex, optionId) {
+            const question = questions[questionIndex];
+            const reaction = question.reactions[optionId];
+
+            if (reaction) {
+                const reactionDiv = document.getElementById(`reaction-${questionIndex}`);
+                const reactionText = document.getElementById(`reaction-text-${questionIndex}`);
+                const reactionAuthor = document.getElementById(`reaction-author-${questionIndex}`);
+
+                reactionText.innerHTML = `"${reaction.text}"${reaction.banter ? `<br><br><em>${reaction.banter}</em>` : ''}`;
+                reactionAuthor.textContent = `— ${reaction.author}`;
+
+                reactionDiv.classList.add('show');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            } else {
+                // Move to open questions
+                showOpenQuestions();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function showOpenQuestions() {
+            document.getElementById('assessment').style.display = 'none';
+            document.getElementById('open-questions').style.display = 'block';
+
+            const container = document.getElementById('open-questions-container');
+            let html = '';
+
+            openQuestions.forEach((q, index) => {
+                html += `
+                    <div class="question-card ${q.host}">
+                        <div class="host-name">
+                            <span class="host-emoji">${q.emoji}</span>
+                            ${q.host.charAt(0).toUpperCase() + q.host.slice(1)}
+                        </div>
+                        <div class="question-text">"${q.question}"</div>
+                        <div class="open-question">
+                            <textarea id="open-${index}" placeholder="Share your thoughts...">${openAnswers[index] || ''}</textarea>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Save answers on input
+            openQuestions.forEach((q, index) => {
+                document.getElementById(`open-${index}`).addEventListener('input', (e) => {
+                    openAnswers[index] = e.target.value;
+                });
+            });
+        }
+
+        function generateResults() {
+            // Collect open answers
+            openQuestions.forEach((q, index) => {
+                const textarea = document.getElementById(`open-${index}`);
+                if (textarea) {
+                    openAnswers[index] = textarea.value;
+                }
+            });
+
+            // Hide open questions, show results
+            document.getElementById('open-questions').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            // Analyze answers and generate personalized results
+            const analysis = analyzeAnswers();
+            displayResults(analysis);
+        }
+
+        function analyzeAnswers() {
+            // Collect all values
+            const values = [];
+            questions.forEach((q, index) => {
+                const answer = answers[index];
+                if (answer) {
+                    const option = q.options.find(opt => opt.id === answer);
+                    if (option) {
+                        values.push(option.value);
+                    }
+                }
+            });
+
+            // Determine core values and needs
+            const analysis = {
+                coreValue: determineCoreValue(values, openAnswers),
+                primaryNeeds: determinePrimaryNeeds(values),
+                tools: recommendTools(values, openAnswers),
+                challenge: createChallenge(values),
+                affirmation: createAffirmation(values, openAnswers)
+            };
+
+            return analysis;
+        }
+
+        function determineCoreValue(values, openAnswers) {
+            // Analyze Karamo's questions (indices 4-5) for core values
+            const impactAnswer = questions[5].options.find(opt => opt.id === answers[5])?.value;
+
+            const valueMap = {
+                'empower': 'Connection & Empowerment',
+                'change': 'Meaningful Impact',
+                'authentic': 'Authentic Expression',
+                'mastery': 'Excellence & Mastery'
+            };
+
+            return valueMap[impactAnswer] || 'Growth & Discovery';
+        }
+
+        function determinePrimaryNeeds(values) {
+            const needCounts = {};
+
+            // Group related values
+            const needMap = {
+                communication: 'Clear Communication',
+                clarity: 'Clear Communication',
+                perfectionist: 'Confidence & Speed',
+                efficiency: 'Confidence & Speed',
+                time: 'Freed Time',
+                learning: 'Deep Learning',
+                connecting: 'Deep Learning',
+                creating: 'Creative Expression',
+                creativity: 'Creative Expression',
+                solving: 'Problem Solving',
+                organize: 'Organization & Structure',
+                chaos: 'Organization & Structure',
+                bigpicture: 'Strategic Thinking',
+                strategic: 'Strategic Thinking'
+            };
+
+            values.forEach(val => {
+                const need = needMap[val];
+                if (need) {
+                    needCounts[need] = (needCounts[need] || 0) + 1;
+                }
+            });
+
+            // Return top 3 needs
+            return Object.entries(needCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([need]) => need);
+        }
+
+        function recommendTools(values, openAnswers) {
+            const tools = [];
+
+            // Gemini recommendations
+            if (values.includes('clarity') || values.includes('communication') || values.includes('perfectionist')) {
+                tools.push({
+                    name: 'Gemini for Writing',
+                    host: 'Tan',
+                    description: 'Your personal writing assistant. Use Gemini to draft emails, refine your message, adjust tone, and communicate with confidence. Think of it as having a skilled editor who helps you sound like the best version of yourself.',
+                    why: 'Because you deserve to communicate with the same brilliance you think.',
+                    tryIt: 'Next time you\'re stuck on an email, ask Gemini: "Help me write a clear, confident response to [situation]"'
+                });
+            }
+
+            // NotebookLM recommendations
+            if (values.includes('learning') || values.includes('information') || values.includes('bigpicture') || values.includes('organize')) {
+                tools.push({
+                    name: 'NotebookLM',
+                    host: 'Antoni & Bobby',
+                    description: 'Your AI research partner. Upload your documents, articles, or notes, and NotebookLM helps you understand, synthesize, and discover insights. It\'s like having a brilliant study partner who never gets tired.',
+                    why: 'Because drowning in information isn\'t productive - understanding it is.',
+                    tryIt: 'Upload 3-5 articles or documents about a topic you\'re researching. Ask NotebookLM to create a summary and identify the key themes.'
+                });
+            }
+
+            // Gemini for creativity
+            if (values.includes('creating') || values.includes('creativity') || values.includes('connecting') || values.includes('spark')) {
+                tools.push({
+                    name: 'Gemini for Brainstorming',
+                    host: 'Antoni & Jonathan',
+                    description: 'Your creative thinking partner. Use Gemini to bounce ideas, explore possibilities, and see connections you might miss. It\'s not about replacing your creativity - it\'s about amplifying it.',
+                    why: 'Because the best ideas come from conversation, and AI can be an always-available collaborator.',
+                    tryIt: 'Share a project or problem you\'re working on and ask: "Help me brainstorm 10 different approaches to [challenge]"'
+                });
+            }
+
+            // Gemini CLI / Antigravity
+            if (values.includes('chaos') || values.includes('repetitive') || values.includes('efficiency') || values.includes('strategic')) {
+                tools.push({
+                    name: 'Gemini CLI (Antigravity)',
+                    host: 'Bobby',
+                    description: 'AI for your workflow automation. If you work with code, documents, or repeated processes, Gemini CLI can help you build custom workflows that handle the repetitive stuff automatically.',
+                    why: 'Because you shouldn\'t be a human robot doing the same task over and over.',
+                    tryIt: 'Identify one task you do multiple times per week. Ask yourself: "Could AI help me automate or streamline this?"'
+                });
+            }
+
+            // General Gemini for daily use
+            if (values.includes('flow') || values.includes('present') || values.includes('boring') || values.includes('discovery')) {
+                tools.push({
+                    name: 'Daily Gemini Practice',
+                    host: 'Jonathan',
+                    description: 'Make AI part of your daily routine. Start your day by asking Gemini to help you prioritize, end it by reflecting with AI on what you learned. Small, consistent AI habits compound into major life improvements.',
+                    why: 'Because self-care includes taking care of your mental energy and time.',
+                    tryIt: 'Every morning this week, spend 5 minutes with Gemini creating your "Top 3 Focus Areas" for the day.'
+                });
+            }
+
+            // Ensure at least 3 tools
+            if (tools.length < 3) {
+                tools.push({
+                    name: 'Gemini Exploratory Learning',
+                    host: 'All of Us',
+                    description: 'The best way to learn AI is to use it. Ask Gemini questions, have conversations, explore topics you\'re curious about. Treat it like a knowledgeable friend.',
+                    why: 'Because hands-on experimentation beats theoretical knowledge every time.',
+                    tryIt: 'Pick a topic you\'re curious about and have a 15-minute conversation with Gemini about it. Ask follow-up questions. Go deep.'
+                });
+            }
+
+            return tools;
+        }
+
+        function createChallenge(values) {
+            // Create a specific weekly challenge
+            if (values.includes('learning') || values.includes('discovery')) {
+                return {
+                    title: 'Your 7-Day AI Discovery Challenge',
+                    description: 'Use AI every day this week for something different: Day 1: Writing help. Day 2: Learning something new. Day 3: Brainstorming. Day 4: Problem-solving. Day 5: Organization. Day 6: Creative project. Day 7: Reflect on what you discovered.',
+                    commitment: 'Spend at least 15 minutes each day intentionally using AI for one of these purposes. Notice what energizes you.'
+                };
+            } else if (values.includes('efficiency') || values.includes('time')) {
+                return {
+                    title: 'The Time Reclamation Challenge',
+                    description: 'Track your time for 3 days. Identify the 3 most time-consuming, repetitive tasks. Then spend one hour figuring out how AI could help with each one.',
+                    commitment: 'By the end of next week, implement at least ONE AI solution that saves you 30+ minutes per week.'
+                };
+            } else {
+                return {
+                    title: 'The AI Integration Challenge',
+                    description: 'Choose ONE area of your work where you struggle or feel stuck. Commit to using AI tools specifically for that area every day for one week.',
+                    commitment: 'Document what works and what doesn\'t. By day 7, you should have a clear AI workflow for this challenge area.'
+                };
+            }
+        }
+
+        function createAffirmation(values, openAnswers) {
+            const impactAnswer = openAnswers[2] || ''; // Karamo's impact question
+            const fulfillmentAnswer = openAnswers[1] || ''; // Antoni's fulfillment question
+
+            let affirmation = `You showed up today because you care about your growth and your impact. That alone is powerful.\n\n`;
+
+            if (values.includes('fear') || values.includes('guilt')) {
+                affirmation += `Let go of the fear. AI doesn't diminish your humanity - it amplifies it. Your judgment, your values, your creativity, your empathy - these are irreplaceable. AI is just a tool that gives you more space to be brilliantly, powerfully human.\n\n`;
+            }
+
+            affirmation += `You have unique gifts and a unique purpose. `;
+
+            if (impactAnswer) {
+                affirmation += `You want to make an impact, and that matters. `;
+            }
+
+            affirmation += `AI should help you shine YOUR light brighter in the world, in YOUR way.\n\n`;
+            affirmation += `Start small. Be curious. Experiment. And remember: the goal isn't to use AI perfectly - it's to use it in ways that align with who you are and what you value.\n\n`;
+            affirmation += `You've got this. And now, you've got AI as a tool to help you thrive.\n\n`;
+            affirmation += `— The Fab Five`;
+
+            return affirmation;
+        }
+
+        function displayResults(analysis) {
+            const resultsContainer = document.getElementById('results');
+
+            let toolsHTML = '';
+            analysis.tools.forEach(tool => {
+                toolsHTML += `
+                    <div class="recommendation-card">
+                        <h3 style="color: #764ba2; margin-bottom: 10px;">${tool.host} recommends:</h3>
+                        <div class="tool-highlight">
+                            <h4>${tool.name}</h4>
+                            <p style="margin-top: 10px;">${tool.description}</p>
+                        </div>
+                        <p style="margin: 15px 0;"><strong>Why this matters:</strong> ${tool.why}</p>
+                        <p style="background: #f0f4ff; padding: 15px; border-radius: 8px; border-left: 3px solid #667eea;"><strong>Try this:</strong> ${tool.tryIt}</p>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = `
+                <h2 style="text-align: center; margin-bottom: 30px; font-size: 2em;">Your AI Makeover Results! ✨</h2>
+
+                <div class="value-card">
+                    <h2>Your Core Value</h2>
+                    <p style="font-size: 1.5em; margin-top: 10px;">${analysis.coreValue}</p>
+                    <p style="margin-top: 15px; opacity: 0.95;">Everything we recommend is designed to amplify this value in your life and work.</p>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0; font-size: 1.8em;">Your Personalized AI Tools</h3>
+                <p style="margin-bottom: 30px; font-size: 1.1em; color: #666;">Based on your answers, here's what we recommend:</p>
+
+                ${toolsHTML}
+
+                <div class="challenge-card">
+                    <h3 style="margin-bottom: 15px; font-size: 1.6em;">${analysis.challenge.title}</h3>
+                    <p style="font-size: 1.1em; margin-bottom: 15px;">${analysis.challenge.description}</p>
+                    <p style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;"><strong>Your commitment:</strong> ${analysis.challenge.commitment}</p>
+                </div>
+
+                <div class="affirmation">
+                    <h3 style="margin-bottom: 20px; font-size: 1.8em;">A Final Word From Us...</h3>
+                    <p style="white-space: pre-line;">${analysis.affirmation}</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <button class="btn" onclick="window.print()">Save Your AI Makeover Plan 📄</button>
+                </div>
+            `;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
