@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zest — meals, weekends, vacations, memoir</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Zest</h1>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="meals">Meals</button>
+      <button class="tab" data-tab="weekends">Weekends</button>
+      <button class="tab" data-tab="vacations">Vacations</button>
+      <button class="tab" data-tab="memoir">Memoir</button>
+    </nav>
+    <div class="topbar-actions">
+      <button id="exportBtn" title="Download a JSON backup of everything">Export</button>
+      <button id="importBtn" title="Restore from a JSON backup">Import</button>
+      <input type="file" id="importFile" accept="application/json" hidden />
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= MEALS ================= -->
+    <section class="panel active" id="panel-meals">
+      <div class="panel-head">
+        <div>
+          <h2 id="weekTitle">This week</h2>
+          <p class="muted" id="weekRange"></p>
+        </div>
+        <div class="row-actions">
+          <button id="prevWeek">←</button>
+          <button id="thisWeek">This week</button>
+          <button id="nextWeek">→</button>
+          <span class="spacer"></span>
+          <button id="addShef">+ Shef delivery</button>
+          <button id="addThistle">+ Thistle delivery</button>
+          <button id="suggestPairings" class="primary">Suggest pairings ↗</button>
+        </div>
+      </div>
+
+      <div class="week-grid" id="weekGrid"></div>
+
+      <details class="aside">
+        <summary>Grocery list (from manual entries)</summary>
+        <textarea id="groceryNotes" placeholder="Anything you want to remember to buy this week…"></textarea>
+      </details>
+    </section>
+
+    <!-- ================= WEEKENDS ================= -->
+    <section class="panel" id="panel-weekends">
+      <div class="panel-head">
+        <h2>Weekend activities</h2>
+        <button id="suggestWeekend" class="primary">Suggest ideas ↗</button>
+      </div>
+      <p class="muted">Coming next. For now, jot ideas here and they'll be saved.</p>
+      <textarea id="weekendNotes" class="full" placeholder="Saturday morning hike? Sunday brunch with the Smiths?"></textarea>
+    </section>
+
+    <!-- ================= VACATIONS ================= -->
+    <section class="panel" id="panel-vacations">
+      <div class="panel-head">
+        <h2>Vacations to plan</h2>
+        <button id="suggestVacation" class="primary">Suggest destinations ↗</button>
+      </div>
+      <p class="muted">Add trips you're considering. Earlier dates float to the top.</p>
+      <div id="vacationList"></div>
+      <button id="addVacation">+ Add a trip idea</button>
+    </section>
+
+    <!-- ================= MEMOIR ================= -->
+    <section class="panel" id="panel-memoir">
+      <div class="panel-head">
+        <h2>Family memoir</h2>
+        <button id="exportMemoir">Export as Markdown</button>
+      </div>
+      <p class="muted">One story at a time. Pick a prompt or write freely.</p>
+      <div class="memoir-layout">
+        <aside class="memoir-prompts">
+          <h3>Prompts</h3>
+          <ul id="promptList"></ul>
+        </aside>
+        <div class="memoir-editor">
+          <input id="memoirTitle" type="text" placeholder="Story title" />
+          <textarea id="memoirBody" placeholder="Start writing…"></textarea>
+          <div class="row-actions">
+            <button id="saveStory" class="primary">Save story</button>
+            <button id="newStory">New story</button>
+          </div>
+          <h3 class="muted">Saved stories</h3>
+          <ul id="storyList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
