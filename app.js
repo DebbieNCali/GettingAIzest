@@ -21,7 +21,7 @@ function saveStore(s) {
 const store = loadStore();
 store.weeks      ??= {};   // { "2026-W19": { days: { "2026-05-10": { breakfast:{text,source}, lunch, dinner, notes } }, grocery: "" } }
 store.weekend    ??= "";   // free-text scratch for now
-store.vacations  ??= [];   // [{ id, destination, startDate, endDate, notes }]
+store.vacations  ??= [];   // see normalizeVacation() for shape
 store.memoir     ??= { stories: [] }; // [{ id, title, body, updatedAt }]
 
 // ---------- date helpers ----------
@@ -198,43 +198,317 @@ function suggestWeekend() {
 }
 
 // ---------- vacations ----------
+const VACATION_STATUSES = ["idea", "researching", "booked", "done"];
+const BUDGET_LABELS = { "": "—", cheap: "$", mid: "$$", splurge: "$$$" };
+let vacationFilter = "all";
+let openVacationIds = new Set();
+
+function normalizeVacation(v) {
+  v.id          ??= cryptoId();
+  v.destination ??= "";
+  v.startDate   ??= "";
+  v.endDate     ??= "";
+  v.status      ??= "idea";
+  v.budget      ??= "";
+  v.travelers   ??= "";
+  v.notes       ??= "";
+  v.checklist   ??= [];
+  return v;
+}
+
+function daysBetween(a, b) {
+  const ms = new Date(b) - new Date(a);
+  return Math.round(ms / (24 * 3600 * 1000));
+}
+
+function countdownFor(v) {
+  if (!v.startDate) return { text: "", className: "" };
+  const today = ymd(new Date());
+  const start = v.startDate, end = v.endDate || v.startDate;
+  if (today < start) {
+    const d = daysBetween(today, start);
+    if (d === 0) return { text: "starts today", className: "" };
+    if (d === 1) return { text: "tomorrow", className: "" };
+    if (d < 14)  return { text: `in ${d} days`, className: "" };
+    if (d < 60)  return { text: `in ${Math.round(d / 7)} weeks`, className: "" };
+    return { text: `in ${Math.round(d / 30)} months`, className: "" };
+  }
+  if (today <= end) return { text: "happening now", className: "" };
+  const d = daysBetween(end, today);
+  if (d < 60) return { text: `${d} days ago`, className: "past" };
+  return { text: `${Math.round(d / 30)} months ago`, className: "past" };
+}
+
+function isPast(v) {
+  return v.status === "done" || (v.endDate && v.endDate < ymd(new Date()));
+}
+function isUpcoming(v) {
+  if (isPast(v)) return false;
+  if (!v.startDate) return false;
+  return v.startDate >= ymd(new Date());
+}
+function bucketFor(v) {
+  if (isPast(v)) return "past";
+  if (isUpcoming(v)) return "upcoming";
+  return "ideas";
+}
+
+function vacationPasses(v) {
+  if (vacationFilter === "all") return true;
+  if (vacationFilter === "upcoming") return bucketFor(v) === "upcoming";
+  return v.status === vacationFilter;
+}
+
 function renderVacations() {
+  store.vacations.forEach(normalizeVacation);
+
+  // Summary line
+  const counts = { upcoming: 0, ideas: 0, past: 0 };
+  store.vacations.forEach(v => counts[bucketFor(v)]++);
+  document.getElementById("vacationsSummary").textContent =
+    `${counts.upcoming} upcoming · ${counts.ideas} ideas · ${counts.past} past`;
+
+  // Sort: upcoming first (by start date asc), then ideas (no date last), then past (most recent first)
+  const sorted = [...store.vacations].sort((a, b) => {
+    const ba = bucketFor(a), bb = bucketFor(b);
+    const order = { upcoming: 0, ideas: 1, past: 2 };
+    if (order[ba] !== order[bb]) return order[ba] - order[bb];
+    if (ba === "past")     return (b.endDate || "").localeCompare(a.endDate || "");
+    if (ba === "upcoming") return (a.startDate || "9999").localeCompare(b.startDate || "9999");
+    return (a.startDate || "9999").localeCompare(b.startDate || "9999");
+  });
+
   const list = document.getElementById("vacationList");
   list.innerHTML = "";
-  const sorted = [...store.vacations].sort((a, b) =>
-    (a.startDate || "9999").localeCompare(b.startDate || "9999")
-  );
+  let currentBucket = null;
+  const groupLabels = { upcoming: "Upcoming", ideas: "Ideas", past: "Past" };
+
   for (const v of sorted) {
-    const row = document.createElement("div");
-    row.className = "vacation-card";
-    row.innerHTML = `
-      <input type="text" placeholder="Destination" value="${escapeAttr(v.destination || "")}" data-field="destination" />
-      <input type="date" value="${v.startDate || ""}" data-field="startDate" title="Start date" />
-      <input type="date" value="${v.endDate || ""}" data-field="endDate" title="End date" />
-      <button class="delete" data-id="${v.id}">Delete</button>
-    `;
-    row.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", () => {
-        v[input.dataset.field] = input.value;
-        saveStore(store);
-      });
-    });
-    row.querySelector(".delete").addEventListener("click", () => {
-      store.vacations = store.vacations.filter(x => x.id !== v.id);
-      saveStore(store);
-      renderVacations();
-    });
-    list.appendChild(row);
+    if (!vacationPasses(v)) continue;
+    const b = bucketFor(v);
+    if (b !== currentBucket) {
+      currentBucket = b;
+      const h = document.createElement("div");
+      h.className = "vacation-group";
+      h.textContent = groupLabels[b];
+      list.appendChild(h);
+    }
+    list.appendChild(buildVacationCard(v));
+  }
+
+  if (!list.children.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = vacationFilter === "all"
+      ? "No trips yet. Click \"Add a trip\" or get destination ideas from Claude."
+      : "Nothing matches that filter.";
+    list.appendChild(empty);
   }
 }
+
+function buildVacationCard(v) {
+  const card = document.createElement("details");
+  card.className = "vacation-card";
+  card.dataset.id = v.id;
+  if (openVacationIds.has(v.id)) card.open = true;
+
+  // Summary
+  const summary = document.createElement("summary");
+  const countdown = countdownFor(v);
+  const datesText = v.startDate
+    ? (v.endDate && v.endDate !== v.startDate
+        ? `${fmtShort(v.startDate)} – ${fmtShort(v.endDate)}`
+        : fmtShort(v.startDate))
+    : "no dates yet";
+  summary.innerHTML = `
+    <span class="v-destination ${v.destination ? "" : "placeholder"}">${escapeHtml(v.destination || "Untitled trip")}</span>
+    <span class="v-dates">${escapeHtml(datesText)}</span>
+    ${countdown.text ? `<span class="v-countdown ${countdown.className}">${countdown.text}</span>` : ""}
+    <span class="pill pill-${v.status}">${v.status}</span>
+    ${v.budget ? `<span class="pill pill-budget">${BUDGET_LABELS[v.budget]}</span>` : ""}
+  `;
+  card.appendChild(summary);
+
+  // Body
+  const body = document.createElement("div");
+  body.className = "v-body";
+  body.innerHTML = `
+    <div class="v-grid">
+      <label>Destination
+        <input type="text" data-field="destination" value="${escapeAttr(v.destination)}" placeholder="e.g. Lisbon" />
+      </label>
+      <label>Start date
+        <input type="date" data-field="startDate" value="${v.startDate}" />
+      </label>
+      <label>End date
+        <input type="date" data-field="endDate" value="${v.endDate}" />
+      </label>
+      <label>Status
+        <select data-field="status">
+          ${VACATION_STATUSES.map(s => `<option value="${s}"${s === v.status ? " selected" : ""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Budget
+        <select data-field="budget">
+          <option value="">—</option>
+          <option value="cheap"${v.budget === "cheap" ? " selected" : ""}>$ Cheap</option>
+          <option value="mid"${v.budget === "mid" ? " selected" : ""}>$$ Mid</option>
+          <option value="splurge"${v.budget === "splurge" ? " selected" : ""}>$$$ Splurge</option>
+        </select>
+      </label>
+      <label>Travelers
+        <input type="text" data-field="travelers" value="${escapeAttr(v.travelers)}" placeholder="who's going" />
+      </label>
+    </div>
+    <div class="v-notes">
+      <label>Notes & itinerary</label>
+      <textarea data-field="notes" placeholder="Flights, hotels, must-dos, links…">${escapeHtml(v.notes)}</textarea>
+    </div>
+    <div class="v-checklist">
+      <label>Checklist</label>
+      <ul></ul>
+      <input type="text" class="checklist-add" placeholder="Add a to-do and press Enter" />
+    </div>
+    <div class="v-actions">
+      <button class="suggest-itinerary">Suggest itinerary ↗</button>
+      ${isPast(v) ? `<button class="save-as-story">Save to memoir</button>` : ""}
+      <button class="delete">Delete</button>
+    </div>
+  `;
+  card.appendChild(body);
+
+  // Field bindings
+  body.querySelectorAll("[data-field]").forEach(el => {
+    el.addEventListener("input", () => {
+      v[el.dataset.field] = el.value;
+      saveStore(store);
+    });
+    if (el.tagName === "SELECT") {
+      el.addEventListener("change", () => {
+        v[el.dataset.field] = el.value;
+        saveStore(store);
+        renderVacations();
+      });
+    }
+    if (el.dataset.field === "startDate" || el.dataset.field === "endDate") {
+      el.addEventListener("change", () => {
+        saveStore(store);
+        renderVacations();
+      });
+    }
+  });
+
+  // Checklist
+  const ul = body.querySelector(".v-checklist ul");
+  renderChecklist(ul, v);
+  body.querySelector(".checklist-add").addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.value.trim()) {
+      v.checklist.push({ id: cryptoId(), text: e.target.value.trim(), done: false });
+      e.target.value = "";
+      saveStore(store);
+      renderChecklist(ul, v);
+    }
+  });
+
+  // Actions
+  body.querySelector(".suggest-itinerary").addEventListener("click", () => suggestItinerary(v));
+  const saveBtn = body.querySelector(".save-as-story");
+  if (saveBtn) saveBtn.addEventListener("click", () => saveTripToMemoir(v));
+  body.querySelector(".delete").addEventListener("click", () => {
+    if (!confirm(`Delete trip to ${v.destination || "(untitled)"}?`)) return;
+    store.vacations = store.vacations.filter(x => x.id !== v.id);
+    openVacationIds.delete(v.id);
+    saveStore(store);
+    renderVacations();
+  });
+
+  // Track open state
+  card.addEventListener("toggle", () => {
+    if (card.open) openVacationIds.add(v.id);
+    else openVacationIds.delete(v.id);
+  });
+
+  return card;
+}
+
+function renderChecklist(ul, v) {
+  ul.innerHTML = "";
+  for (const item of v.checklist) {
+    const li = document.createElement("li");
+    if (item.done) li.classList.add("done");
+    li.innerHTML = `
+      <input type="checkbox" ${item.done ? "checked" : ""} />
+      <span></span>
+      <button class="remove" title="Remove">×</button>
+    `;
+    li.querySelector("span").textContent = item.text;
+    li.querySelector("input").addEventListener("change", e => {
+      item.done = e.target.checked;
+      saveStore(store);
+      renderChecklist(ul, v);
+    });
+    li.querySelector(".remove").addEventListener("click", () => {
+      v.checklist = v.checklist.filter(x => x.id !== item.id);
+      saveStore(store);
+      renderChecklist(ul, v);
+    });
+    ul.appendChild(li);
+  }
+}
+
+function fmtShort(isoDate) {
+  if (!isoDate) return "";
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function suggestItinerary(v) {
+  const dest = v.destination || "(destination TBD)";
+  const dates = v.startDate ? `${v.startDate} to ${v.endDate || v.startDate}` : "(dates TBD)";
+  const checklistText = v.checklist.length
+    ? v.checklist.map(c => `- [${c.done ? "x" : " "}] ${c.text}`).join("\n")
+    : "(empty)";
+  const p =
+    `Help me plan a trip to ${dest} (${dates}).\n` +
+    `Travelers: ${v.travelers || "not specified"}\n` +
+    `Budget: ${v.budget ? BUDGET_LABELS[v.budget] : "not specified"}\n` +
+    `Status: ${v.status}\n\n` +
+    `My current notes:\n${v.notes || "(none)"}\n\n` +
+    `Existing checklist:\n${checklistText}\n\n` +
+    `Please draft a day-by-day itinerary, plus a packing/to-do list of anything I'm missing. ` +
+    `Note any bookings I should make now versus closer to the date.`;
+  openClaudeWith(p);
+}
+
+function saveTripToMemoir(v) {
+  const title = v.destination
+    ? `${v.destination}${v.startDate ? `, ${fmtShort(v.startDate)}` : ""}`
+    : "A trip";
+  const body =
+    `Travelers: ${v.travelers || "—"}\n` +
+    `Dates: ${v.startDate || "?"}${v.endDate ? ` to ${v.endDate}` : ""}\n\n` +
+    `${v.notes || ""}\n\n` +
+    (v.checklist.length ? `What we did:\n${v.checklist.map(c => `- ${c.text}`).join("\n")}\n` : "");
+  store.memoir.stories.push({ id: cryptoId(), title, body, updatedAt: Date.now() });
+  saveStore(store);
+  renderStoryList();
+  alert(`Saved "${title}" to your memoir. Switch to the Memoir tab to keep editing.`);
+}
+
 function suggestVacation() {
   const known = store.vacations
-    .map(v => `- ${v.destination || "(idea)"}${v.startDate ? ` (${v.startDate} to ${v.endDate || "?"})` : ""}`)
+    .map(v => {
+      const parts = [v.destination || "(idea)"];
+      if (v.startDate) parts.push(`(${v.startDate}${v.endDate ? ` to ${v.endDate}` : ""})`);
+      if (v.status && v.status !== "idea") parts.push(`[${v.status}]`);
+      return `- ${parts.join(" ")}`;
+    })
     .join("\n") || "(none yet)";
   const p =
     `I want to plan more vacations this year. Here are the trips I'm already considering:\n\n${known}\n\n` +
     `Suggest 5 more vacation ideas — a mix of weekend getaways, week-long trips, and one bigger adventure. ` +
-    `For each, give: where, best time of year, why it's worth it, and a rough budget category (cheap / mid / splurge).`;
+    `For each, give: where, best time of year, why it's worth it, and a rough budget category (cheap / mid / splurge). ` +
+    `Avoid duplicating destinations I already listed.`;
   openClaudeWith(p);
 }
 
@@ -396,11 +670,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("suggestWeekend").onclick = suggestWeekend;
 
   document.getElementById("addVacation").onclick = () => {
-    store.vacations.push({ id: cryptoId(), destination: "", startDate: "", endDate: "", notes: "" });
+    const v = normalizeVacation({});
+    store.vacations.push(v);
+    openVacationIds.add(v.id);  // auto-expand the new card
     saveStore(store);
     renderVacations();
   };
   document.getElementById("suggestVacation").onclick = suggestVacation;
+  document.getElementById("vacationFilter").addEventListener("change", e => {
+    vacationFilter = e.target.value;
+    renderVacations();
+  });
 
   document.getElementById("saveStory").onclick = saveStory;
   document.getElementById("newStory").onclick = newStory;

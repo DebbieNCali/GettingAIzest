@@ -62,12 +62,24 @@
     <!-- ================= VACATIONS ================= -->
     <section class="panel" id="panel-vacations">
       <div class="panel-head">
-        <h2>Vacations to plan</h2>
-        <button id="suggestVacation" class="primary">Suggest destinations ↗</button>
+        <div>
+          <h2>Vacations</h2>
+          <p class="muted" id="vacationsSummary"></p>
+        </div>
+        <div class="row-actions">
+          <select id="vacationFilter" title="Filter">
+            <option value="all">All trips</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="idea">Ideas</option>
+            <option value="researching">Researching</option>
+            <option value="booked">Booked</option>
+            <option value="done">Past</option>
+          </select>
+          <button id="addVacation">+ Add a trip</button>
+          <button id="suggestVacation" class="primary">Suggest destinations ↗</button>
+        </div>
       </div>
-      <p class="muted">Add trips you're considering. Earlier dates float to the top.</p>
       <div id="vacationList"></div>
-      <button id="addVacation">+ Add a trip idea</button>
     </section>
 
     <!-- ================= MEMOIR ================= -->
